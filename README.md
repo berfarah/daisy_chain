@@ -1,15 +1,19 @@
-# Daisy
+# DaisyChain
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/daisy`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+DaisyChain builds on the work for [`Interactor`](https://github.com/collectiveidea/interactor),
+[`Troupe`](https://github.com/jonstokes/troupe) and
+[`Interactor Schema`](https://github.com/berfarah/interactor-schem://github.com/berfarah/interactor-schema)
+to create a chain of services that have a less mutable context. The idea here is
+that you should pass things around sparingly. Furthermore, each context can be
+suited to the task at hand like an adapter, and can inherit properties from
+other adapters.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'daisy'
+gem 'daisy_chain'
 ```
 
 And then execute:
@@ -22,7 +26,31 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+See [here](https://github.com/collectiveidea/interactor) for the official
+Interactor documentation.
+
+The way `DaisyChain` in particular works is that it forces a though-out context
+from the start.
+
+```rb
+class UserContext
+  attributes :name, :email
+
+  def first_name
+    name.split(" ").first
+  end
+end
+
+class SaveUser
+  include DaisyChain
+  requires(:first_name, :email)
+  context UserContext
+
+  def call
+    Mailer.welcome_email(email: email, name: first_name).deliver_later
+  end
+end
+```
 
 ## Development
 
